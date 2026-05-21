@@ -5,16 +5,16 @@ const tasks = require('./routes/tasks.js')
 const errHandler = require('./middleware/errHandler')
 require('./db/connect.js')    
 
+app.use(express.json())
+
 app.get('/', (req, res) => {
     res.send('Hello World!')
 });
 
-app.use(express.json())
-
 app.use('/api/v1/tasks', tasks)
 
+app.use(errHandler)
 app.listen(port, () =>{
     console.log(`Server is running on port ${port}`)   
 })
 
-app.use(errHandler)
