@@ -1,73 +1,51 @@
-const Task = require('../models/Task');
+const Task = require('../models/task');
+const customErr = require("../error/customErr")
+const asyncWrapper = require("../middleware/asyncWrapper")
 
+const getAllTasks = asyncWrapper(async (req, res) => {
+    const tasks = await Task.find()
 
-const getAllTasks = async (req, res) => {
-    try{
-        const tasks = await Task.find()
-
-        if (tasks.length === 0){
-            return res.status(404).json({message: "Tasks not found"})
-        }
-        res.status(200).json(tasks)  
+    if (tasks.length === 0){
+    throw new customErr("Tasks not found", 404)
     }
-    catch(err){
-        res.status(500).json({message: "No tasks found"})
-    }
-}
+    res.status(200).json(tasks)  
+})
 
-const getOneTask = async (req, res) =>{
-    try{
-        const oneTask = await Task.findById(req.params.id)
+const getOneTask = asyncWrapper(async (req, res) =>{
+    const oneTask = await Task.findById(req.params.id)
 
-        if (!oneTask){
-            return res.status(404).json({message: "Task not found"})
-        }
-        res.status(200).json(oneTask)
+    if (!oneTask){
+        throw new customErr("Task not found", 404)
     }
-    catch(err){
-        res.status(500).json({message: err.message})
-    }
-}
+    res.status(200).json(oneTask)
+})
 
-const updateTask = async (req, res) => {
-    try{
-        const updateTask = await Task.findByIdAndUpdate(req.params.id,req.body, {new : true})
+const updateTask = asyncWrapper(async (req, res) => {
+    const updateTask = await Task.findByIdAndUpdate(req.params.id,req.body, {new : true})
 
-        if (!updateTask){
-            return res.status(404).json({message: "Task not found"})
-        }
-        res.status(200).json(updateTask)
-    }
-    catch(err){
-        res.status(500).json({message: err.message})
-    }
-}
+    if (!updateTask){
+        throw new customErr("Task not found", 404)
+       }
+    res.status(200).json(updateTask)
+})
 
-const deleteTask = async (req, res) => {
-    try{
-        const deleteTask = await Task.findByIdAndDelete(req.params.id)
+const deleteTask = asyncWrapper(async (req, res) => {
+    
+    const deleteTask = await Task.findByIdAndDelete(req.params.id)
         
-        if (!deleteTask) {
-            return res.status(404).json({message: "Task not found"})
-        }
-        res.status(200).json({message: "Task deleted"})
+    if (!deleteTask) {
+        throw new customErr("Task not found", 404)
     }
-    catch(err){
-        res.status(500).json({message: err.message})
-    }
-}
-const createTask = async (req, res) => {
-    try{
-        const newTask = new Task({
-            title: req.body.title,
-        })
-        const savedTask = await newTask.save()
-        res.status(201).json(savedTask)
-    }
-    catch(err){
-        res.status(500).json({message: err.message})
-    }
-}
+    res.status(200).json({message: "Task deleted"})
+})
+
+const createTask = asyncWrapper(async (req, res) => {
+    const newTask = new Task({
+        title: req.body.title,
+    })
+    const savedTask = await newTask.save()
+    res.status(201).json(savedTask)
+})
 
 module.exports = {
     getAllTasks,
